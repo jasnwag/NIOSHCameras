@@ -2,6 +2,7 @@ import pyzed.sl as sl
 import sys
 from signal import signal, SIGINT
 import pyrealsense2 as rs
+import time 
 
 
 
@@ -42,15 +43,20 @@ def initialize():
     config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
     config.enable_stream(rs.stream.color, 1280, 800, rs.format.bgr8, 30)
     config.enable_record_to_file(intel_output)
-    pipeline.start(config)
-    return pipeline, zed
 
-def start_recording(pipeline, zed, time):
+    return pipeline, zed, config
+
+def start_recording(pipeline, zed,config,  duration):
     framesCount = 0
-    frames = time*30
-    while framesCount < frames:
+    framesLimit = duration*30
+    start = time.time()
+    pipeline.start(config)
+    while time.time()-start < duration:
         frames = pipeline.wait_for_frames()
         # Each new frame is added to the SVO file
         zed.grab()
         framesCount += 1
+    pipeline.stop
+    zed.disable_recording()
+    zed.close()
     return pipeline, zed
