@@ -6,6 +6,8 @@ import argparse
 import sys
 from signal import signal, SIGINT
 
+from pyparsing import DebugStartAction
+
 def handler(signal_received, frame):
     print('SIGINT or CTRL-C detected. Exiting gracefully...')
     sys.exit(0)
@@ -31,9 +33,9 @@ def send_stop(connection):
     print('Sending stop to ', connection)
     connection.send(str.encode('stop'))
 
-def send_time(connection, time):
-    print('Sending time to ', connection)
-    connection.send(str.encode('time'))
+def send_duration(connection, duration):
+    print('Sending duration to ', connection)
+    connection.send(str.encode(duration))
 
 def search_signal():
     print('Searching for signal...')
@@ -52,18 +54,18 @@ if __name__ == '__main__':
         ServerSocket.listen()
         CamerasOne = search_signal()
         print('Connected to Camera 1')
-        CamerasTwo = search_signal()
+        #CamerasTwo = search_signal()
         print('Connected to Camera 2')
-        Input = input('How long do you want the cameras to run (seconds)?')
-        send_time(CamerasOne, Input)
-        send_time(CamerasTwo, Input)
+        Input = input('How long do you want the cameras to run (seconds)? ')
+        send_duration(CamerasOne, Input)
+        #send_duration(CamerasTwo, Input)
         Input = input('Type "exit" to close the server or "start" to start recording: ')
         if Input == 'exit':
             ServerSocket.close()
         if Input == 'start':
             print('Signal Sent')
             send_start(CamerasOne)
-            send_start(CamerasTwo)
+            #send_start(CamerasTwo)
         """
         Input = input('Type "exit" to close the server or "stop" to stop recording: ')
         if Input == 'exit':
@@ -75,11 +77,11 @@ if __name__ == '__main__':
             CamerasTwo.close()
         """
         dataOne = CamerasOne.recv(1024)
-        dataTwo = CamerasTwo.recv(1024)
-        if dataOne.decode('utf-8') == 'done' and dataTwo.decode('utf-8') == 'done':
+        #dataTwo = CamerasTwo.recv(1024)
+        if dataOne.decode('utf-8') == 'done':# and dataTwo.decode('utf-8') == 'done':
             print('Done')
             CamerasOne.close()
-            CamerasTwo.close()
+            #CamerasTwo.close()
             ServerSocket.close()
     except socket.error as e:
         print(str(e))
