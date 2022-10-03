@@ -52,10 +52,13 @@ def start_recording(pipeline, zed,config,  duration):
     start = time.time()
     pipeline.start(config)
     while time.time()-start < duration:
-        frames = pipeline.wait_for_frames()
-        # Each new frame is added to the SVO file
         zed.grab()
+        if zed.grab == sl.ERROR_CODE.SUCCESS:
+            zed.record()
+        frames = pipeline.poll_for_frames()
+        # Each new frame is added to the SVO file
         framesCount += 1
+        print("Frames Count: " +  str(framesCount), end='\r')
     pipeline.stop
     zed.disable_recording()
     zed.close()
