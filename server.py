@@ -117,7 +117,7 @@ if __name__ == '__main__':
                 continue
         while durationNotSent:
             duration = input('How long do you want the cameras to run (seconds): ')
-            confirmation = input('Confirm ' + Input + ' seconds(y/n)?')
+            confirmation = input('Confirm ' + duration + ' seconds(y/n)?')
             if confirmation == 'y':
                 send_duration(CamerasOne, duration)
                 send_duration(CamerasTwo, duration)
