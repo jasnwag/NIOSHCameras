@@ -64,12 +64,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             continue
         clientNotStarted = False
     print('Connected to Server, waiting for start...')
-    pipeline, zed, config= dualRecorder.initialize()
-    data = s.recv(1024)
-    duration = int(data.decode('utf-8'))
     data = s.recv(1024)
     filename = data.decode('utf-8')
     pipeline, zed, config= dualRecorder.initialize(filename)
+    data = s.recv(1024)
+    duration = int(data.decode('utf-8'))
     data = s.recv(1024)
     while data.decode('utf-8') != 'start':
         data = s.recv(1024)
