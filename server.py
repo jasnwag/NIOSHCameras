@@ -15,16 +15,6 @@ def handler(signal_received, frame):
 signal(SIGINT, handler)
 
 
-def threaded_client(connection):
-    connection.send(str.encode('Welcome to the Server'))
-    #while True:
-        #data = connection.recv(2048)
-        #reply = 'Server Says: ' + data.decode('utf-8')
-        #if not data:
-            #break
-        #connection.sendall(str.encode(reply))
-    #connection.close()
-
 def send_start(connection):
     print('Sending start to ', connection)
     connection.send(str.encode('start'))
@@ -37,51 +27,138 @@ def send_duration(connection, duration):
     print('Sending duration to ', connection)
     connection.send(str.encode(duration))
 
+def send_filenames(connection, filename):
+    print('Sending filename to ', connection)
+    connection.send(str.encode(filename))
+
 def search_signal():
     print('Searching for signal...')
     client, address = ServerSocket.accept()
     print('Connected to: ' + address[0] + ':' + str(address[1]))
-    #start_new_thread(threaded_client, (client, ))
     return client
 
 
 if __name__ == '__main__':
-    HOST = sys.argv[1]
-    PORT = int(sys.argv[2])
-    ServerSocket = socket.socket()
     try:
-        ServerSocket.bind((HOST, PORT))
+        serverNotStarted = True
+        IPNotDone = True
+        hostNotDone = True
+        durationNotSent = True
+        filenameNotSent = True
+        startNotSent = True
+        while serverNotStarted == True:
+            while IPNotDone == True:
+                Input = input('Enter the IP Address: ')
+                confirmation = input('IP Address: ' + Input + ' confirm(y/n)? ')
+                if confirmation == 'y':
+                    HOST = Input
+                    IPNotDone = False
+                elif confirmation == 'n':
+                    continue
+                elif confirmation == 'exit':
+                    print('Closing server...')
+                    try:
+                        print('Exiting gracefully...')
+                        sys.exit(0)
+                    except:
+                        print('Attemped exit gracefully but failed.')
+                else:
+                    print('Please enter a valid response')
+            while hostNotDone == True:
+                Input = input('Enter the Port Number: ')
+                confirmation = input('IP Address: ' + Input + ' confirm(y/n)? ')
+                if confirmation == 'y':
+                    PORT = int(Input)
+                    hostNotDone = False
+                elif confirmation == 'n':
+                    continue
+                elif confirmation == 'exit':
+                    print('Closing server...')
+                    try:
+                        print('Exiting gracefully...')
+                        sys.exit(0)
+                    except:
+                        print('Attemped exit gracefully but failed.')
+                else:
+                    print('Please enter a valid response')
+            ServerSocket = socket.socket()
+            try:
+                ServerSocket.bind((HOST, PORT))
+            except socket.error as e:
+                print(str(e))
+                print('Attempting to restart...')
+                ServerSocket.close()
+                continue
+            print('Server started successfully')
+            serverNotStarted = False
         ServerSocket.listen()
         CamerasOne = search_signal()
         print('Connected to Camera 1')
-        #CamerasTwo = search_signal()
+        CamerasTwo = search_signal()
         print('Connected to Camera 2')
-        Input = input('How long do you want the cameras to run (seconds)? ')
-        send_duration(CamerasOne, Input)
-        #send_duration(CamerasTwo, Input)
-        Input = input('Type "exit" to close the server or "start" to start recording: ')
-        if Input == 'exit':
-            ServerSocket.close()
-        if Input == 'start':
-            print('Signal Sent')
-            send_start(CamerasOne)
-            #send_start(CamerasTwo)
-        """
-        Input = input('Type "exit" to close the server or "stop" to stop recording: ')
-        if Input == 'exit':
-            ServerSocket.close()
-        if Input == 'stop':
-            send_stop(CamerasOne)
-            send_stop(CamerasTwo)
+        while filenameNotSent:
+            filename = input('What is the name of the file going to be: ')
+            confirmation = input('Confirm ' + filename + ' as the file names(y/n)?')
+            if confirmation == 'y':
+                send_filenames(CamerasOne, filename)
+                send_filenames(CamerasTwo, filename)
+                filenameNotSent = False
+            elif confirmation == 'n':
+                continue
+            elif confirmation == 'exit':
+                print('Closing server...')
+                try:
+                    ServerSocket.close()
+                    CamerasOne.close()
+                    CamerasTwo.close()
+                except:
+                    print('Attemped to close server, but failed.')
+            else:
+                continue
+        while durationNotSent:
+            duration = input('How long do you want the cameras to run (seconds): ')
+            confirmation = input('Confirm ' + Input + ' seconds(y/n)?')
+            if confirmation == 'y':
+                send_duration(CamerasOne, duration)
+                send_duration(CamerasTwo, duration)
+                durationNotSent = False
+            elif confirmation == 'n':
+                continue
+            elif confirmation == 'exit':
+                print('Closing server...')
+                try:
+                    ServerSocket.close()
+                    CamerasOne.close()
+                    CamerasTwo.close()
+                except:
+                    print('Attemped to close server, but failed.')
+            else:
+                print('Please enter a valid response')
+                continue
+        while startNotSent == True:
+            Input = input('Type "exit" to close the server or "start" to start recording: ')
+            if Input == 'exit':
+                print('Closing server...')
+                try:
+                    ServerSocket.close()
+                    CamerasOne.close()
+                    CamerasTwo.close()
+                except:
+                    print('Attemped to close server, but failed.')
+            elif Input == 'start':
+                print('Signal Sent')
+                send_start(CamerasOne)
+                send_start(CamerasTwo)
+                startNotSent = False
+            else:
+                print('Please enter a valid response')
+                continue
+        dataOne = CamerasOne.recv(1024)
+        dataTwo = CamerasTwo.recv(1024)
+        if dataOne.decode('utf-8') == 'done' and dataTwo.decode('utf-8') == 'done':
+            print('Done recording, closing....')
             CamerasOne.close()
             CamerasTwo.close()
-        """
-        dataOne = CamerasOne.recv(1024)
-        #dataTwo = CamerasTwo.recv(1024)
-        if dataOne.decode('utf-8') == 'done':# and dataTwo.decode('utf-8') == 'done':
-            print('Done')
-            CamerasOne.close()
-            #CamerasTwo.close()
             ServerSocket.close()
     except socket.error as e:
         print(str(e))
