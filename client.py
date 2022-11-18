@@ -30,34 +30,34 @@ def set_location(path):
 
 
 if __name__ == '__main__':
-    while pathSet == False:
-        Input = input('Enter the path to file folder: ')
-        if Input == 'exit':
-            print('Closing...')
-            try:
-                print('Exiting gracefully...')
-                sys.exit(0)
-            except:
-                print('Attemped exit gracefully but failed.')
-        confirmation = input('File path: ' + Input + ' confirm(y/n)? ')
-        if confirmation == 'y':
-            pathSet = set_location(Input)
-        elif confirmation == 'n':
-            continue
-        elif confirmation == 'exit':
-            print('Closing...')
-            try:
-                print('Exiting gracefully...')
-                sys.exit(0)
-            except:
-                print('Attemped exit gracefully but failed.')
-        else:
-            print('Please enter a valid response')
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         IPNotDone = True
         hostNotDone = True
         clientNotStarted = True
         pathSet = False
+        while pathSet == False:
+            Input = input('Enter the path to file folder: ')
+            if Input == 'exit':
+                print('Closing...')
+                try:
+                    print('Exiting gracefully...')
+                    sys.exit(0)
+                except:
+                    print('Attemped exit gracefully but failed.')
+            confirmation = input('File path: ' + Input + ' confirm(y/n)? ')
+            if confirmation == 'y':
+                pathSet = set_location(Input)
+            elif confirmation == 'n':
+                continue
+            elif confirmation == 'exit':
+                print('Closing...')
+                try:
+                    print('Exiting gracefully...')
+                    sys.exit(0)
+                except:
+                    print('Attemped exit gracefully but failed.')
+            else:
+                print('Please enter a valid response')
         while clientNotStarted == True:
             while IPNotDone == True:
                 Input = input('Enter the IP Address: ')
