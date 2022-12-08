@@ -29,92 +29,39 @@ def set_location(path):
         return False 
 
 
+def enter(question):
+    Input = input(question)
+    if Input == 'exit':
+        print('Closing...')
+        try:
+            print('Exiting gracefully...')
+            sys.exit(0)
+        except:
+            print('Attemped exit gracefully but failed.')
+    return Input
+
 if __name__ == '__main__':
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        IPNotDone = True
-        hostNotDone = True
-        clientNotStarted = True
-        pathSet = False
-        while pathSet == False:
-            Input = input('Enter the path to file folder: ')
-            if Input == 'exit':
-                print('Closing...')
-                try:
-                    print('Exiting gracefully...')
-                    sys.exit(0)
-                except:
-                    print('Attemped exit gracefully but failed.')
-            confirmation = input('File path: ' + Input + ' confirm(y/n)? ')
-            if confirmation == 'y':
-                pathSet = set_location(Input)
-            elif confirmation == 'n':
-                continue
-            elif confirmation == 'exit':
-                print('Closing...')
-                try:
-                    print('Exiting gracefully...')
-                    sys.exit(0)
-                except:
-                    print('Attemped exit gracefully but failed.')
-            else:
-                print('Please enter a valid response')
-        while clientNotStarted == True:
-            while IPNotDone == True:
-                Input = input('Enter the IP Address: ')
-                if Input == 'exit':
-                    print('Closing...')
-                    try:
-                        print('Exiting gracefully...')
-                        sys.exit(0)
-                    except:
-                        print('Attemped exit gracefully but failed.')
-                confirmation = input('IP Address: ' + Input + ' confirm(y/n)? ')
-                if confirmation == 'y':
-                    HOST = Input
-                    IPNotDone = False
-                elif confirmation == 'n':
-                    continue
-                elif confirmation == 'exit':
-                    print('Closing...')
-                    try:
-                        print('Exiting gracefully...')
-                        sys.exit(0)
-                    except:
-                        print('Attemped exit gracefully but failed.')
-                else:
-                    print('Please enter a valid response')
-            while hostNotDone == True:
-                Input = input('Enter the Port Number: ')
-                if Input == 'exit':
-                    print('Closing...')
-                    try:
-                        print('Exiting gracefully...')
-                        sys.exit(0)
-                    except:
-                        print('Attemped exit gracefully but failed.')
-                confirmation = input('IP Address: ' + Input + ' confirm(y/n)? ')
-                if confirmation == 'y':
-                    PORT = int(Input)
-                    hostNotDone = False
-                elif confirmation == 'n':
-                    continue
-                elif confirmation == 'exit':
-                    print('Closing...')
-                    try:
-                        print('Exiting gracefully...')
-                        sys.exit(0)
-                    except:
-                        print('Attemped exit gracefully but failed.')
-                else:
-                    print('Please enter a valid response')
+        serverStarted = False
+        while serverStarted == False:
+            IPQuestion = 'Enter the IP Address: '
+            HOST = enter(IPQuestion)
+            PORTQuestion = 'Enter the Port Number: '
+            PORT = int(enter(PORTQuestion))
             try:
                 s.connect((HOST, PORT))
+                serverStarted = True
             except socket.error as e:
                 print(str(e))
                 print('Attempting to restart...')
-                continue
-            clientNotStarted = False
-        print('Connected to Server, waiting for start...')
+                serverStarted = False
+        print('Connected to Server...')
+        pathQuestion = 'Enter the path to file folder: '
+        pathSet = False
+        while pathSet == False:
+            path = enter(pathQuestion)
+            pathSet = set_location(path)
+        print('Path set, waiting for details...')
         while True:
             data = s.recv(1024)
             filename = data.decode('utf-8')
