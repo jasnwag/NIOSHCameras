@@ -65,6 +65,7 @@ if __name__ == '__main__':
         while True:
             data = s.recv(1024)
             filename = data.decode('utf-8')
+            print(filename)
             pipeline, zed, config= dualRecorder.initialize(filename)
             data = s.recv(1024)
             duration = int(data.decode('utf-8'))
@@ -86,6 +87,9 @@ if __name__ == '__main__':
                 print('Closing...')
                 try:
                     print('Exiting gracefully...')
+                    pipeline.stop()
+                    zed.disable_recording()
+                    zed.close()
                     sys.exit(0)
                 except:
                     print('Attemped exit gracefully but failed.')

@@ -161,9 +161,6 @@ if __name__ == '__main__':
             dataTwo = CamerasTwo.recv(1024)
             if dataOne.decode('utf-8') == 'done' and dataTwo.decode('utf-8') == 'done':
                 print('Recording Successful')
-                CamerasOne.close()
-                CamerasTwo.close()
-                ServerSocket.close()
             Input = input('Type "exit" to close the server or "restart" to restart: ')
             if Input == 'exit':
                 print('Closing server...')
@@ -176,6 +173,7 @@ if __name__ == '__main__':
                     sys.exit(0)
                 except:
                     print('Attemped to close server, but failed.')
+                    sys.exit(0)
             elif Input == 'restart':
                 print('Restarting...')
                 send_start(CamerasOne)
